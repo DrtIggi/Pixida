@@ -1,14 +1,16 @@
 import telebot, time
 import openai
 token = '2117240577:AAF1McmhAsPNTfrMh3BDeRojzDe_K50r4XY'
-
 bot = telebot.TeleBot(token)
-
-@bot.message_handler(content_types=['text'])
+@bot.message_handler(commands=['start'])
 def start(message):
-    if(message.text is not None):
-        bot.send_message(message.chat.id, ask(message.text))
-openai.api_key = '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'
+    ask(session_prompt)
+@bot.message_handler(content_types=['text'])
+def text(message):
+    ask(session_prompt)
+    if(message.text != None):
+        bot.send_message(message.chat.id, ask("Person: "+message.text, chat_log))
+openai.api_key = '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'
 start_sequence = "\nIGNAT:"
 restart_sequence = "\n\nPerson:"
 session_prompt = """Person: Hi\n
@@ -34,8 +36,9 @@ IGNAT: I am pooping\n\n
 
 Person: what is your friend?\n
 IGNAT: DIYOR\n"""
+chat_log = session_prompt
 
-def ask(question, chat_log=None):
+def ask(question, chat_log=session_prompt):
  prompt_text = f'{chat_log}{restart_sequence}:{question}{start_sequence}:'
  response = openai.Completion.create(
  engine="davinci",
